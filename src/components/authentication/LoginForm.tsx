@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils";
+import { useId, useState } from "react";
+import { toast } from "sonner";
+import { login } from "@/app/actions/auth.actions";
+import { redirect } from "next/navigation";
+import { Loader2 } from "lucide-react";
  
 const formSchema = z.object({
   email: z.string().email({
@@ -25,6 +30,9 @@ const formSchema = z.object({
 })
 
 const LoginForm = ({ className }: { className?: string }) => {
+  const [loading, setLoading] = useState(false);
+  const toastId = useId();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,8 +41,23 @@ const LoginForm = ({ className }: { className?: string }) => {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    toast.loading("Signing in...", { id: toastId })
+    setLoading(true)
+
+    const formData = new FormData();
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+
+    const { success, error } = await login(formData);
+
+    if (!success) {
+      toast.error(String(error), { id: toastId })
+    } else {
+      toast.success("Signed in successfully!", { id: toastId })
+      setLoading(false);
+      redirect("/dashboard");
+    }
   }
 
   return (
@@ -67,7 +90,10 @@ const LoginForm = ({ className }: { className?: string }) => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">Login</Button>
+          <Button type="submit" className="w-full">
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Login
+          </Button>
         </form>
       </Form>
     </div>

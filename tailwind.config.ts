@@ -9,6 +9,10 @@ export default {
   ],
   theme: {
   	extend: {
+			fontFamily: {
+				mono: ["var(--font-geist-mono)"],
+				sans: ["var(--font-geist-sans)"],
+			},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -90,5 +94,6 @@ export default {
   		}
   	}
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
